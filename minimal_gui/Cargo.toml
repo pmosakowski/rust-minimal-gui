@@ -1,0 +1,6 @@
+[package]
+name = "minimal_gui"
+version = "0.1.0"
+authors = ["pmosakowski <pmosakowski@users.noreply.github.com>"]
+
+[dependencies]
