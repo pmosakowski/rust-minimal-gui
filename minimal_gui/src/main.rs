@@ -8,13 +8,22 @@ fn main() {
     const HEIGHT: u32 = 600;
     let title = String::from("rust-minimal-gui");
 
+    let _display = create_glium_display(WIDTH, HEIGHT, title);
+
+    // construct our `Ui`.
+    let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
+
+    load_font(&mut ui);
+}
+
+fn create_glium_display(width: u32, height: u32, title: String) -> glium::Display {
     // glium event loop
     let events_loop = glium::glutin::EventsLoop::new();
 
     // create window
     let window = glium::glutin::WindowBuilder::new()
 	.with_title(title)
-	.with_dimensions(WIDTH, HEIGHT);
+	.with_dimensions(width, height);
 
     // create OpenGl context
     let context = glium::glutin::ContextBuilder::new()
@@ -22,8 +31,14 @@ fn main() {
 	.with_multisampling(4);
 
     // combine the above into an rendering target
-    let _display = glium::Display::new(window, context, &events_loop).unwrap();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
-    // construct our `Ui`.
-    let _ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
+    display
+}
+
+fn load_font(ui: &mut conrod::Ui) {
+   let assets = find_folder::Search::KidsThenParents(3, 5).for_folder("assets").unwrap();
+   let font_path = assets.join("fonts/NotoSans/NotoSans-Regular.ttf");
+   ui.fonts.insert_from_file(&font_path).unwrap();
+   println!("Loaded font {:?}", &font_path);
 }
