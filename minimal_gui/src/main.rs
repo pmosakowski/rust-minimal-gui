@@ -3,6 +3,19 @@ extern crate find_folder;
 
 use conrod::backend::glium::glium;
 
+// the GUI state
+struct DiceApp {
+    roll: u8,
+}
+
+impl DiceApp {
+    fn new() -> DiceApp {
+        DiceApp {
+	    roll: 0,
+	}
+    }
+}
+
 fn main() {
     const WIDTH: u32 = 800;
     const HEIGHT: u32 = 600;
@@ -14,6 +27,8 @@ fn main() {
     let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
 
     load_font(&mut ui);
+
+    let app_state = DiceApp::new();
 }
 
 fn create_glium_display(width: u32, height: u32, title: String) -> glium::Display {
