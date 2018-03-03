@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate conrod;
 extern crate find_folder;
+extern crate rand;
 
 use conrod::backend::glium::glium;
 use conrod::backend::glium::glium::Surface;
@@ -198,6 +199,7 @@ fn load_font(ui: &mut conrod::Ui) {
 /// retrieved from a `Widget` in the case that it's `State` has changed in some way.
 fn set_widgets(ui: &mut conrod::UiCell, app: &mut DiceApp, ids: &Ids) {
     use conrod::{color, widget, Colorable, Positionable, Widget, Sizeable, Borderable, Labelable};
+    use rand::random;
 
     // We can use this `Canvas` as a parent Widget upon which we can place other widgets.
     widget::Canvas::new()
@@ -220,6 +222,7 @@ fn set_widgets(ui: &mut conrod::UiCell, app: &mut DiceApp, ids: &Ids) {
         .set(ids.roll_button, ui)
         .was_clicked()
     {
-        app.roll = 9
+        app.roll = random::<u8>() % 6 + 1;
+        println!("Rolled {}", &app.roll);
     }
 }
