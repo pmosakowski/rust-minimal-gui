@@ -98,13 +98,11 @@ fn main() {
     const HEIGHT: u32 = 600;
     let title = String::from("rust-minimal-gui");
 
-    // glium event loop
-    let mut events_loop = glium::glutin::EventsLoop::new();
-    let display = create_glium_display(WIDTH, HEIGHT, title, &events_loop);
+    let mut window = GliumWindow::new(WIDTH, HEIGHT, title);
 
     // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
     // for drawing to the glium `Surface`.
-    let mut renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
+    let mut renderer = conrod::backend::glium::Renderer::new(&window.display).unwrap();
 
     // The image map describing each of our widget->image mappings (in our case, none).
     let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
@@ -123,10 +121,10 @@ fn main() {
     'main: loop {
 
         // Handle all events.
-        for event in event_loop.next(&mut events_loop) {
+        for event in event_loop.next(&mut window.event_loop) {
 
             // Use the `winit` backend feature to convert the winit event to a conrod one.
-            if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
+            if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &window.display) {
                 ui.handle_event(event);
                 event_loop.needs_update();
             }
@@ -156,32 +154,44 @@ fn main() {
 
         // Render the `Ui` and then display it on the screen.
         if let Some(primitives) = ui.draw_if_changed() {
-            renderer.fill(&display, primitives, &image_map);
-            let mut target = display.draw();
+            renderer.fill(&window.display, primitives, &image_map);
+            let mut target = window.display.draw();
             target.clear_color(0.0, 0.0, 0.0, 1.0);
-            renderer.draw(&display, &mut target, &image_map).unwrap();
+            renderer.draw(&window.display, &mut target, &image_map).unwrap();
             target.finish().unwrap();
         }
     }
 
 }
 
-fn create_glium_display(width: u32, height: u32, title: String, events_loop: &glium::glutin::EventsLoop) -> glium::Display {
+struct GliumWindow {
+    display: glium::Display,
+    event_loop: glium::glutin::EventsLoop,
+}
 
-    // create window
-    let window = glium::glutin::WindowBuilder::new()
-        .with_title(title)
-        .with_dimensions(width, height);
+impl GliumWindow {
+    fn new(width: u32, height: u32, title: String) -> Self {
+        // glium event loop
+        let event_loop = glium::glutin::EventsLoop::new();
 
-    // create OpenGl context
-    let context = glium::glutin::ContextBuilder::new()
-        .with_vsync(true)
-        .with_multisampling(4);
+        // create window
+        let window = glium::glutin::WindowBuilder::new()
+            .with_title(title)
+            .with_dimensions(width, height);
 
-    // combine the above into an rendering target
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+        // create OpenGl context
+        let context = glium::glutin::ContextBuilder::new()
+            .with_vsync(true)
+            .with_multisampling(4);
 
-    display
+        // combine the above into an rendering target
+        let display = glium::Display::new(window, context, &event_loop).unwrap();
+
+        GliumWindow {
+            display: display,
+            event_loop: event_loop,
+        }
+    }
 }
 
 fn load_font(ui: &mut conrod::Ui) {
