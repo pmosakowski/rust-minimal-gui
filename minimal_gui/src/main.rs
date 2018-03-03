@@ -113,7 +113,7 @@ fn main() {
 
     load_font(&mut ui);
 
-    let app_state = DiceApp::new();
+    let mut app_state = DiceApp::new();
     let ids = Ids::new(ui.widget_id_generator());
 
     // Poll events from the window.
@@ -150,7 +150,7 @@ fn main() {
         // We'll set all our widgets in a single function called `set_widgets`.
         {
             let mut ui = ui.set_widgets();
-            set_widgets(&mut ui, &app_state, &ids);
+            set_widgets(&mut ui, &mut app_state, &ids);
         }
 
         // Render the `Ui` and then display it on the screen.
@@ -196,8 +196,8 @@ fn load_font(ui: &mut conrod::Ui) {
 /// the `Ui` at their given indices. Every other time this get called, the `Widget`s will avoid any
 /// allocations by updating the pre-existing cached state. A new graphical `Element` is only
 /// retrieved from a `Widget` in the case that it's `State` has changed in some way.
-fn set_widgets(ui: &mut conrod::UiCell, app: &DiceApp, ids: &Ids) {
-    use conrod::{color, widget, Colorable, Positionable, Widget};
+fn set_widgets(ui: &mut conrod::UiCell, app: &mut DiceApp, ids: &Ids) {
+    use conrod::{color, widget, Colorable, Positionable, Widget, Sizeable, Borderable, Labelable};
 
     // We can use this `Canvas` as a parent Widget upon which we can place other widgets.
     widget::Canvas::new()
@@ -210,4 +210,16 @@ fn set_widgets(ui: &mut conrod::UiCell, app: &DiceApp, ids: &Ids) {
         .font_size(32)
         .color(color::BLUE.plain_contrast())
         .set(ids.text, ui);
+
+    if widget::Button::new()
+        .w_h(200.0, 50.0)
+        .down_from(ids.text, 45.0)
+        .rgb(0.4, 0.75, 0.6)
+        .border(2.0)
+        .label("Roll d6")
+        .set(ids.roll_button, ui)
+        .was_clicked()
+    {
+        app.roll = 9
+    }
 }
